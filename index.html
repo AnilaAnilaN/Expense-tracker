@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<style>
     /* ======= VARIABLES & BASE STYLES ======= */
     :root {
       --primary: #4361ee;
@@ -24,13 +24,22 @@
       --gray: #6c757d;
       --border: #e0e0e0;
       --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --text-color: #1e1e2c;
+      --text-muted-color: #6c757d;
     }
 
-    .dark-mode {
+    body.dark-mode {
       --dark: #f8f9fa;
       --light: #1e1e2c;
       --border: #2d2d3a;
       --card-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      --text-color: #f8f9fa;
+      --text-muted-color: #adb5bd;
+    }
+
+    /* Fix for text-danger in dark mode */
+    body.dark-mode .text-danger {
+      color: #ff6b8b !important;
     }
 
     * {
@@ -43,7 +52,7 @@
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background-color: var(--light);
-      color: var(--dark);
+      color: var(--text-color);
       overflow-x: hidden;
     }
 
@@ -88,7 +97,7 @@
 
     /* ======= MAIN APP LAYOUT ======= */
     #app-container {
-      padding-bottom: 70px; /* Space for bottom nav */
+      padding-bottom: 70px;
     }
 
     header {
@@ -110,12 +119,28 @@
       background-color: var(--light);
       box-shadow: var(--card-shadow);
       margin-bottom: 1.5rem;
+      color: var(--text-color);
     }
 
     .card-header {
       background-color: rgba(0,0,0,0.03);
       font-weight: 600;
       padding: 0.9rem 1.25rem;
+      color: var(--text-color);
+    }
+
+    /* Fix for card headers in dark mode */
+    body.dark-mode .card-header.bg-light {
+      background-color: rgba(255,255,255,0.05) !important;
+    }
+
+    /* Card title and icon styles */
+    .card-title {
+      color: var(--text-color);
+    }
+    
+    .card-title i {
+      color: var(--text-color);
     }
 
     /* ======= BALANCE DISPLAY ======= */
@@ -125,9 +150,10 @@
       border-radius: 16px;
       margin: 2rem 0;
       border: 1px solid var(--border);
+      color: var(--text-color);
     }
 
-    .dark-mode .balance-display {
+    body.dark-mode .balance-display {
       background: linear-gradient(135deg, #1a2a4a 0%, #0d1b2a 100%);
     }
 
@@ -139,13 +165,14 @@
 
     /* ======= TABLES ======= */
     .table {
-      color: inherit;
+      color: var(--text-color);
     }
 
     .table thead th {
       font-weight: 600;
       background-color: rgba(0,0,0,0.03);
       border-bottom: 2px solid var(--border);
+      color: var(--text-color);
     }
 
     .table-hover tbody tr:hover {
@@ -207,6 +234,8 @@
       overflow: hidden;
       border: none;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      background-color: var(--light);
+      color: var(--text-color);
     }
 
     .modal-header {
@@ -230,6 +259,10 @@
     /* ======= UTILITY CLASSES ======= */
     .text-success { color: var(--success) !important; }
     .text-danger { color: var(--danger) !important; }
+    
+    .text-muted {
+      color: var(--text-muted-color) !important;
+    }
 
     /* ======= RESPONSIVE ADJUSTMENTS ======= */
     @media (max-width: 768px) {
@@ -300,7 +333,58 @@
       height: 300px;
       margin: 1rem 0;
     }
-  </style>
+    
+    /* ======= TRANSACTION FILTERS ======= */
+    .filter-container {
+      background-color: rgba(0,0,0,0.03);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    body.dark-mode .filter-container {
+      background-color: rgba(255,255,255,0.05);
+    }
+    
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .filter-group {
+      flex: 1;
+      min-width: 150px;
+    }
+    
+    .filter-group label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    
+    .filter-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-self: flex-end;
+    }
+
+    /* ======= PLANNED EXPENSES SPECIFIC FIXES ======= */
+    /* Fix for the planned expenses summary card */
+    .card-body .card-title.text-danger,
+    .card-body .card-title.text-danger i {
+      color: var(--text-color) !important;
+    }
+
+    /* Fix for the planned expenses list card header */
+    .card-header.bg-light h5,
+    .card-header.bg-light h5 i {
+      color: var(--text-color);
+    }
+</style>
 </head>
 <body class="d-flex flex-column" style="min-height: 100vh;">
 
@@ -402,22 +486,57 @@
       <section id="transactions-view" class="d-none">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">Your Transactions</h5>
-          <div>
-            <button id="add-transaction-btn" class="btn btn-sm btn-primary me-2">
-              <i class="fas fa-plus me-1"></i> Add
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
-              <i class="fas fa-filter me-1"></i> Filter
-            </button>
-          </div>
+          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#expenseModal">
+            <i class="fas fa-plus me-1"></i> Add Transaction
+          </button>
         </div>
         
-        <!-- Filter Badges -->
-        <div id="filter-badges" class="mb-3 d-none">
-          <span class="badge bg-primary me-2">
-            Filter: <span id="active-filter">All</span>
-            <button class="btn-close btn-close-white ms-2" onclick="clearFilters()"></button>
-          </span>
+        <!-- Filter Container (Always visible) -->
+        <div class="filter-container">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>Transaction Type</label>
+              <select class="form-select form-select-sm" id="filter-type">
+                <option value="all">All Transactions</option>
+                <option value="income">Income Only</option>
+                <option value="expense">Expenses Only</option>
+                <option value="planned">Planned Expenses</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>Category</label>
+              <select class="form-select form-select-sm" id="filter-category">
+                <option value="all">All Categories</option>
+                <option value="Salary">Salary</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Food">Food</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Utilities">Utilities</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>From Date</label>
+              <input type="date" class="form-control form-control-sm" id="start-date">
+            </div>
+            
+            <div class="filter-group">
+              <label>To Date</label>
+              <input type="date" class="form-control form-control-sm" id="end-date">
+            </div>
+            
+            <div class="filter-actions">
+              <button type="button" class="btn btn-sm btn-primary" id="apply-filters-btn">
+                <i class="fas fa-filter me-1"></i> Apply
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-filters-btn">
+                Clear
+              </button>
+            </div>
+          </div>
         </div>
         
         <div class="card shadow-sm">
@@ -609,57 +728,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- Filter Modal -->
-      <div class="modal fade" id="filterModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Filter Transactions</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Transaction Type</label>
-                <select class="form-select" id="filter-type">
-                  <option value="all">All Transactions</option>
-                  <option value="income">Income Only</option>
-                  <option value="expense">Expenses Only</option>
-                  <option value="planned">Planned Expenses</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Category</label>
-                <select class="form-select" id="filter-category">
-                  <option value="all">All Categories</option>
-                  <option value="Salary">Salary</option>
-                  <option value="Freelance">Freelance</option>
-                  <option value="Food">Food</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Utilities">Utilities</option>
-                </select>
-              </div>
-              <div class="row mb-3">
-                <div class="col">
-                  <label for="start-date" class="form-label">From Date</label>
-                  <input type="date" class="form-control" id="start-date">
-                </div>
-                <div class="col">
-                  <label for="end-date" class="form-label">To Date</label>
-                  <input type="date" class="form-control" id="end-date">
-                </div>
-              </div>
-              <div class="d-grid">
-                <button type="button" class="btn btn-primary" id="apply-filters-btn">
-                  <i class="fas fa-filter me-2"></i>Apply Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
 
     <!-- ======= BOTTOM NAVIGATION ======= -->
@@ -700,652 +768,6 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Custom JS -->
-  <script>
-    // App State
-    let appState = {
-      balance: 0,
-      totalIncome: 0,
-      totalExpenses: 0,
-      plannedExpenses: [],
-      transactions: [],
-      darkMode: false,
-      currentView: 'balance'
-    };
-
-    // DOM Elements
-    const elements = {
-      welcomeScreen: document.getElementById('welcome-screen'),
-      appContainer: document.getElementById('app-container'),
-      getStartedBtn: document.getElementById('get-started-btn'),
-      viewTitle: document.getElementById('view-title'),
-      balanceView: document.getElementById('balance-view'),
-      transactionsView: document.getElementById('transactions-view'),
-      analyticsView: document.getElementById('analytics-view'),
-      settingsView: document.getElementById('settings-view'),
-      totalIncome: document.getElementById('total-income'),
-      plannedExpenses: document.getElementById('planned-expenses'),
-      mainBalance: document.getElementById('main-balance'),
-      plannedExpensesList: document.getElementById('planned-expenses-list'),
-      transactionList: document.getElementById('transaction-list'),
-      filterBadges: document.getElementById('filter-badges'),
-      activeFilter: document.getElementById('active-filter'),
-      pieChart: document.getElementById('pie-chart'),
-      barChart: document.getElementById('bar-chart'),
-      darkModeSwitch: document.getElementById('dark-mode-switch'),
-      exportDataBtn: document.getElementById('export-data-btn'),
-      resetDataBtn: document.getElementById('reset-data-btn'),
-      addTransactionBtn: document.getElementById('add-transaction-btn'),
-      incomeForm: document.getElementById('income-form'),
-      expenseForm: document.getElementById('expense-form'),
-      adjustmentForm: document.getElementById('adjustment-form'),
-      applyFiltersBtn: document.getElementById('apply-filters-btn')
-    };
-
-    // Initialize the app
-    function initApp() {
-      // Load data from localStorage
-      const savedData = localStorage.getItem('expenseTrackerData');
-      if (savedData) {
-        appState = JSON.parse(savedData);
-      }
-      
-      // Set up event listeners
-      setupEventListeners();
-      
-      // Initialize UI
-      updateUI();
-      
-      // Initialize charts
-      initCharts();
-    }
-
-    // Set up event listeners
-    function setupEventListeners() {
-      // Navigation
-      elements.getStartedBtn.addEventListener('click', showApp);
-      
-      // Bottom nav
-      document.querySelectorAll('.nav-link[data-view]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          switchView(link.getAttribute('data-view'));
-        });
-      });
-      
-      // Forms
-      elements.incomeForm.addEventListener('submit', handleIncomeSubmit);
-      elements.expenseForm.addEventListener('submit', handleExpenseSubmit);
-      elements.adjustmentForm.addEventListener('submit', handleAdjustmentSubmit);
-      
-      // Settings
-      elements.darkModeSwitch.addEventListener('change', toggleDarkMode);
-      elements.exportDataBtn.addEventListener('click', exportData);
-      elements.resetDataBtn.addEventListener('click', resetData);
-      
-      // Transactions
-      elements.addTransactionBtn.addEventListener('click', () => {
-        document.getElementById('expenseModal').classList.add('show');
-        document.querySelector('#expenseModal .btn-close').click();
-      });
-      
-      // Filters
-      elements.applyFiltersBtn.addEventListener('click', applyFilters);
-    }
-
-    // Show main app
-    function showApp() {
-      elements.welcomeScreen.classList.add('d-none');
-      elements.appContainer.classList.remove('d-none');
-    }
-
-    // Switch between views
-    function switchView(view) {
-      appState.currentView = view;
-      
-      // Update active nav link
-      document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('data-view') === view) {
-          link.classList.add('active');
-        }
-      });
-      
-      // Hide all views
-      elements.balanceView.classList.add('d-none');
-      elements.transactionsView.classList.add('d-none');
-      elements.analyticsView.classList.add('d-none');
-      elements.settingsView.classList.add('d-none');
-      
-      // Show current view
-      switch(view) {
-        case 'balance':
-          elements.balanceView.classList.remove('d-none');
-          elements.viewTitle.textContent = 'Balance Overview';
-          break;
-        case 'transactions':
-          elements.transactionsView.classList.remove('d-none');
-          elements.viewTitle.textContent = 'Transactions';
-          renderTransactions();
-          break;
-        case 'analytics':
-          elements.analyticsView.classList.remove('d-none');
-          elements.viewTitle.textContent = 'Analytics';
-          updateCharts();
-          break;
-        case 'settings':
-          elements.settingsView.classList.remove('d-none');
-          elements.viewTitle.textContent = 'Settings';
-          break;
-      }
-      
-      saveState();
-    }
-
-    // Handle income form submission
-    function handleIncomeSubmit(e) {
-      e.preventDefault();
-      
-      const amount = parseFloat(document.getElementById('income-amount').value);
-      const source = document.getElementById('income-source').value;
-      const date = document.getElementById('income-date').value || new Date().toISOString().split('T')[0];
-      
-      // Create transaction
-      const transaction = {
-        id: Date.now(),
-        type: 'income',
-        amount: amount,
-        source: source,
-        date: date,
-        category: source
-      };
-      
-      // Update state
-      appState.transactions.push(transaction);
-      appState.totalIncome += amount;
-      appState.balance += amount;
-      
-      // Update UI
-      updateUI();
-      
-      // Reset form
-      elements.incomeForm.reset();
-      
-      // Close modal
-      document.querySelector('#incomeModal .btn-close').click();
-    }
-
-    // Handle expense form submission
-    function handleExpenseSubmit(e) {
-      e.preventDefault();
-      
-      const item = document.getElementById('expense-item').value;
-      const amount = parseFloat(document.getElementById('expense-amount').value);
-      const category = document.getElementById('expense-category').value;
-      const date = document.getElementById('expense-date').value || new Date().toISOString().split('T')[0];
-      const deductImmediately = document.getElementById('deduct-immediately').checked;
-      
-      // Create planned expense
-      const expense = {
-        id: Date.now(),
-        item: item,
-        amount: amount,
-        category: category,
-        plannedDate: date,
-        status: deductImmediately ? 'paid' : 'planned'
-      };
-      
-      // Update state
-      appState.plannedExpenses.push(expense);
-      appState.totalExpenses += amount;
-      
-      if (deductImmediately) {
-        appState.balance -= amount;
-        
-        // Create transaction
-        const transaction = {
-          id: Date.now(),
-          type: 'expense',
-          amount: amount,
-          item: item,
-          date: new Date().toISOString().split('T')[0],
-          category: category
-        };
-        
-        appState.transactions.push(transaction);
-      }
-      
-      // Update UI
-      updateUI();
-      
-      // Reset form
-      elements.expenseForm.reset();
-      
-      // Close modal
-      document.querySelector('#expenseModal .btn-close').click();
-    }
-
-    // Handle adjustment form submission
-    function handleAdjustmentSubmit(e) {
-      e.preventDefault();
-      
-      const amount = parseFloat(document.getElementById('adjustment-amount').value);
-      const type = document.querySelector('input[name="adjustment-type"]:checked').value;
-      const reason = document.getElementById('adjustment-reason').value || "Balance adjustment";
-      
-      // Update balance
-      if (type === 'add') {
-        appState.balance += amount;
-      } else {
-        appState.balance -= amount;
-      }
-      
-      // Create transaction
-      const transaction = {
-        id: Date.now(),
-        type: 'adjustment',
-        amount: type === 'add' ? amount : -amount,
-        reason: reason,
-        date: new Date().toISOString().split('T')[0],
-        category: 'Adjustment'
-      };
-      
-      appState.transactions.push(transaction);
-      
-      // Update UI
-      updateUI();
-      
-      // Reset form
-      elements.adjustmentForm.reset();
-      
-      // Close modal
-      document.querySelector('#adjustmentModal .btn-close').click();
-    }
-
-    // Mark expense as paid
-    function markExpenseAsPaid(id) {
-      const expense = appState.plannedExpenses.find(e => e.id === id);
-      if (expense && expense.status === 'planned') {
-        expense.status = 'paid';
-        appState.balance -= expense.amount;
-        
-        // Create transaction
-        const transaction = {
-          id: Date.now(),
-          type: 'expense',
-          amount: expense.amount,
-          item: expense.item,
-          date: new Date().toISOString().split('T')[0],
-          category: expense.category
-        };
-        
-        appState.transactions.push(transaction);
-        
-        // Update UI
-        updateUI();
-      }
-    }
-
-    // Delete expense
-    function deleteExpense(id) {
-      const expenseIndex = appState.plannedExpenses.findIndex(e => e.id === id);
-      if (expenseIndex !== -1) {
-        const expense = appState.plannedExpenses[expenseIndex];
-        
-        // Only update totals if it was planned and not paid
-        if (expense.status === 'planned') {
-          appState.totalExpenses -= expense.amount;
-        }
-        
-        appState.plannedExpenses.splice(expenseIndex, 1);
-        
-        // Update UI
-        updateUI();
-      }
-    }
-
-    // Toggle dark mode
-    function toggleDarkMode() {
-      appState.darkMode = elements.darkModeSwitch.checked;
-      if (appState.darkMode) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-      saveState();
-    }
-
-    // Export data
-    function exportData() {
-      const dataStr = JSON.stringify(appState);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = 'expense-tracker-data.json';
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-    }
-
-    // Reset data
-    function resetData() {
-      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
-        appState = {
-          balance: 0,
-          totalIncome: 0,
-          totalExpenses: 0,
-          plannedExpenses: [],
-          transactions: [],
-          darkMode: appState.darkMode,
-          currentView: appState.currentView
-        };
-        localStorage.removeItem('expenseTrackerData');
-        updateUI();
-      }
-    }
-
-    // Apply filters
-    function applyFilters() {
-      const type = document.getElementById('filter-type').value;
-      const category = document.getElementById('filter-category').value;
-      const startDate = document.getElementById('start-date').value;
-      const endDate = document.getElementById('end-date').value;
-      
-      // Show filter badges
-      elements.filterBadges.classList.remove('d-none');
-      elements.activeFilter.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)}${category !== 'all' ? `, ${category}` : ''}`;
-      
-      // Render transactions with filters
-      renderTransactions(type, category, startDate, endDate);
-      
-      // Close modal
-      document.querySelector('#filterModal .btn-close').click();
-    }
-
-    // Clear filters
-    function clearFilters() {
-      elements.filterBadges.classList.add('d-none');
-      renderTransactions();
-    }
-
-    // Render planned expenses
-    function renderPlannedExpenses() {
-      const list = elements.plannedExpensesList;
-      list.innerHTML = '';
-      
-      if (appState.plannedExpenses.length === 0) {
-        list.innerHTML = `<tr><td colspan="4" class="text-center py-4">No planned expenses yet</td></tr>`;
-        return;
-      }
-      
-      appState.plannedExpenses.forEach(expense => {
-        const row = document.createElement('tr');
-        
-        // Status badge
-        let badgeClass, badgeText;
-        if (expense.status === 'paid') {
-          badgeClass = 'badge-paid';
-          badgeText = 'Paid';
-        } else {
-          badgeClass = 'badge-planned';
-          badgeText = 'Planned';
-        }
-        
-        row.innerHTML = `
-          <td>${expense.item}</td>
-          <td class="text-danger">$${expense.amount.toFixed(2)}</td>
-          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-          <td>
-            ${expense.status === 'planned' ? `
-              <button class="btn btn-sm btn-success me-1" onclick="markExpenseAsPaid(${expense.id})">
-                <i class="fas fa-check"></i>
-              </button>
-            ` : ''}
-            <button class="btn btn-sm btn-danger" onclick="deleteExpense(${expense.id})">
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        `;
-        
-        list.appendChild(row);
-      });
-    }
-
-    // Render transactions
-    function renderTransactions(type = 'all', category = 'all', startDate = null, endDate = null) {
-      const list = elements.transactionList;
-      list.innerHTML = '';
-      
-      // Filter transactions
-      let transactions = [...appState.transactions];
-      
-      if (type !== 'all') {
-        transactions = transactions.filter(t => t.type === type);
-      }
-      
-      if (category !== 'all') {
-        transactions = transactions.filter(t => t.category === category);
-      }
-      
-      if (startDate) {
-        transactions = transactions.filter(t => t.date >= startDate);
-      }
-      
-      if (endDate) {
-        transactions = transactions.filter(t => t.date <= endDate);
-      }
-      
-      if (transactions.length === 0) {
-        list.innerHTML = `<tr><td colspan="5" class="text-center py-4">No transactions found</td></tr>`;
-        return;
-      }
-      
-      // Sort by date (newest first)
-      transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-      
-      // Render transactions
-      transactions.forEach(transaction => {
-        const row = document.createElement('tr');
-        const isIncome = transaction.type === 'income';
-        const isExpense = transaction.type === 'expense';
-        const isAdjustment = transaction.type === 'adjustment';
-        
-        row.innerHTML = `
-          <td>
-            ${isIncome ? '<span class="badge bg-success">Income</span>' : ''}
-            ${isExpense ? '<span class="badge bg-danger">Expense</span>' : ''}
-            ${isAdjustment ? '<span class="badge bg-warning text-dark">Adjustment</span>' : ''}
-          </td>
-          <td class="${isIncome ? 'text-success' : isExpense ? 'text-danger' : isAdjustment && transaction.amount > 0 ? 'text-success' : 'text-danger'}">
-            ${isIncome || (isAdjustment && transaction.amount > 0) ? '+' : ''}${isExpense || (isAdjustment && transaction.amount < 0) ? '-' : ''}$${Math.abs(transaction.amount).toFixed(2)}
-          </td>
-          <td>${transaction.category}</td>
-          <td>${transaction.date}</td>
-          <td><span class="badge bg-success">Completed</span></td>
-        `;
-        
-        list.appendChild(row);
-      });
-    }
-
-    // Initialize charts
-    function initCharts() {
-      // Pie chart for expense categories
-      elements.pieChart = new Chart(
-        document.getElementById('pie-chart'),
-        {
-          type: 'pie',
-          data: {
-            labels: [],
-            datasets: [{
-              data: [],
-              backgroundColor: [
-                '#ef476f',
-                '#ffd166',
-                '#06d6a0',
-                '#118ab2',
-                '#073b4c',
-                '#7209b7'
-              ]
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'right'
-              },
-              title: {
-                display: false
-              }
-            }
-          }
-        }
-      );
-      
-      // Bar chart for monthly summary
-      elements.barChart = new Chart(
-        document.getElementById('bar-chart'),
-        {
-          type: 'bar',
-          data: {
-            labels: [],
-            datasets: [
-              {
-                label: 'Income',
-                data: [],
-                backgroundColor: '#06d6a0'
-              },
-              {
-                label: 'Expenses',
-                data: [],
-                backgroundColor: '#ef476f'
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          }
-        }
-      );
-    }
-
-    // Update charts
-    function updateCharts() {
-      // Expense categories
-      const categories = {};
-      appState.transactions
-        .filter(t => t.type === 'expense')
-        .forEach(t => {
-          categories[t.category] = (categories[t.category] || 0) + t.amount;
-        });
-      
-      elements.pieChart.data.labels = Object.keys(categories);
-      elements.pieChart.data.datasets[0].data = Object.values(categories);
-      elements.pieChart.update();
-      
-      // Monthly summary
-      const months = {};
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      
-      appState.transactions.forEach(t => {
-        const month = new Date(t.date).getMonth();
-        const year = new Date(t.date).getFullYear();
-        const key = `${year}-${month}`;
-        
-        if (!months[key]) {
-          months[key] = { income: 0, expense: 0 };
-        }
-        
-        if (t.type === 'income' || (t.type === 'adjustment' && t.amount > 0)) {
-          months[key].income += Math.abs(t.amount);
-        } else if (t.type === 'expense' || (t.type === 'adjustment' && t.amount < 0)) {
-          months[key].expense += Math.abs(t.amount);
-        }
-      });
-      
-      // Get last 6 months
-      const now = new Date();
-      const labels = [];
-      const incomeData = [];
-      const expenseData = [];
-      
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(now.getMonth() - i);
-        const key = `${date.getFullYear()}-${date.getMonth()}`;
-        
-        labels.push(`${monthNames[date.getMonth()]} ${date.getFullYear()}`);
-        
-        if (months[key]) {
-          incomeData.push(months[key].income);
-          expenseData.push(months[key].expense);
-        } else {
-          incomeData.push(0);
-          expenseData.push(0);
-        }
-      }
-      
-      elements.barChart.data.labels = labels;
-      elements.barChart.data.datasets[0].data = incomeData;
-      elements.barChart.data.datasets[1].data = expenseData;
-      elements.barChart.update();
-    }
-
-    // Update UI
-    function updateUI() {
-      // Update summary values
-      elements.totalIncome.textContent = `$${appState.totalIncome.toFixed(2)}`;
-      elements.plannedExpenses.textContent = `$${appState.totalExpenses.toFixed(2)}`;
-      elements.mainBalance.textContent = `$${appState.balance.toFixed(2)}`;
-      
-      // Render lists
-      renderPlannedExpenses();
-      renderTransactions();
-      
-      // Update settings
-      elements.darkModeSwitch.checked = appState.darkMode;
-      if (appState.darkMode) {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
-      
-      // Update charts if in analytics view
-      if (appState.currentView === 'analytics') {
-        updateCharts();
-      }
-      
-      saveState();
-    }
-
-    // Save state to localStorage
-    function saveState() {
-      localStorage.setItem('expenseTrackerData', JSON.stringify(appState));
-    }
-
-    // Initialize the app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      // Set today's date as default in forms
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('income-date').value = today;
-      document.getElementById('expense-date').value = today;
-      
-      // Initialize the app
-      initApp();
-    });
-    
-    // Make functions available globally for HTML event handlers
-    window.markExpenseAsPaid = markExpenseAsPaid;
-    window.deleteExpense = deleteExpense;
-    window.clearFilters = clearFilters;
-  </script>
+  <script src="app.js">t<script>
 </body>
 </html>
