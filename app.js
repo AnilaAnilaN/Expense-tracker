@@ -652,5 +652,7 @@
       initApp();
     });
     
-   
+    // Make functions available globally for HTML event handlers
+    window.markExpenseAsPaid = markExpenseAsPaid;
+    window.deleteExpense = deleteExpense;
   
