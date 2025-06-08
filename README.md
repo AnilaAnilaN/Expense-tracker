@@ -1,11 +1,11 @@
 # Expense-tracker
 
 # Built Using:
--> HTML5 
--> CSS3 
--> JavaScript 
--> Bootstrap 5 
--> Chart.js
+- HTML5 
+- CSS3 
+- JavaScript 
+- Bootstrap 5 
+- Chart.js
 
 # Features:
 - Add and manage income and expenses in one place
