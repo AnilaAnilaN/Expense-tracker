@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker Pro</title>
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ======= VARIABLES & BASE STYLES ======= */
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #06d6a0;
+      --success: #06d6a0;
+      --danger: #ef476f;
+      --warning: #ffd166;
+      --dark: #1e1e2c;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --border: #e0e0e0;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .dark-mode {
+      --dark: #f8f9fa;
+      --light: #1e1e2c;
+      --border: #2d2d3a;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.3s, color 0.2s;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* ======= WELCOME SCREEN ======= */
+    #welcome-screen {
+      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #welcome-screen::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: rotate(30deg);
+    }
+
+    #get-started-btn {
+      background: white;
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      border: none;
+    }
+
+    #get-started-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+
+    #get-started-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* ======= MAIN APP LAYOUT ======= */
+    #app-container {
+      padding-bottom: 70px; /* Space for bottom nav */
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      padding: 1rem 0;
+    }
+
+    #view-title {
+      font-weight: 700;
+      font-size: 1.8rem;
+    }
+
+    /* ======= CARD STYLES ======= */
+    .card {
+      border: none;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: var(--light);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      background-color: rgba(0,0,0,0.03);
+      font-weight: 600;
+      padding: 0.9rem 1.25rem;
+    }
+
+    /* ======= BALANCE DISPLAY ======= */
+    .balance-display {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #f0f4ff 0%, #e6f7ff 100%);
+      border-radius: 16px;
+      margin: 2rem 0;
+      border: 1px solid var(--border);
+    }
+
+    .dark-mode .balance-display {
+      background: linear-gradient(135deg, #1a2a4a 0%, #0d1b2a 100%);
+    }
+
+    #main-balance {
+      font-weight: 800;
+      color: var(--primary);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ======= TABLES ======= */
+    .table {
+      color: inherit;
+    }
+
+    .table thead th {
+      font-weight: 600;
+      background-color: rgba(0,0,0,0.03);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .table-hover tbody tr:hover {
+      background-color: rgba(0,0,0,0.025);
+    }
+
+    /* ======= BOTTOM NAVIGATION ======= */
+    .navbar {
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      height: 70px;
+    }
+
+    .nav-link {
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .nav-link.active {
+      color: white;
+      transform: translateY(-5px);
+    }
+
+    .nav-link.active i {
+      transform: scale(1.2);
+    }
+
+    .nav-link i {
+      display: block;
+      margin: 0 auto 4px;
+      font-size: 1.4rem;
+      transition: all 0.3s;
+    }
+
+    /* ======= BUTTONS ======= */
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+
+    .btn-outline-success {
+      border-width: 2px;
+    }
+
+    /* ======= MODALS ======= */
+    .modal-content {
+      border-radius: 12px;
+      overflow: hidden;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* ======= VIEW TRANSITIONS ======= */
+    #balance-view,
+    #transactions-view,
+    #analytics-view,
+    #settings-view {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ======= UTILITY CLASSES ======= */
+    .text-success { color: var(--success) !important; }
+    .text-danger { color: var(--danger) !important; }
+
+    /* ======= RESPONSIVE ADJUSTMENTS ======= */
+    @media (max-width: 768px) {
+      .display-3 {
+        font-size: 2.5rem;
+      }
+      
+      .balance-display {
+        margin: 1.5rem 0;
+      }
+      
+      .table-responsive {
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+      
+      .navbar .d-block {
+        display: none !important;
+      }
+      
+      .nav-link {
+        padding: 0.5rem 0.25rem;
+      }
+      
+      .nav-link i {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      #welcome-screen {
+        padding: 0 1rem;
+      }
+      
+      .display-3 {
+        font-size: 2rem;
+      }
+      
+      .card {
+        border-radius: 10px;
+      }
+    }
+
+    /* ======= BADGES ======= */
+    .badge {
+      padding: 0.5em 0.75em;
+      border-radius: 0.5rem;
+    }
+    
+    .badge-planned {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .badge-paid {
+      background-color: #06d6a0;
+      color: white;
+    }
+    
+    .badge-overdue {
+      background-color: #ef476f;
+      color: white;
+    }
+
+    /* ======= CHART CONTAINERS ======= */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+
+  <!-- ======= WELCOME SCREEN ======= -->
+  <section id="welcome-screen" class="d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 100vh;">
+    <div class="container">
+      <h1 class="display-3 fw-bold mb-4">Expense Tracker Pro</h1>
+      <p class="lead mb-5">Plan, track, and control your finances with ease</p>
+      <button id="get-started-btn" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+        Get Started <i class="fas fa-arrow-right ms-2"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- ======= MAIN APP (Hidden Initially) ======= -->
+  <div id="app-container" class="d-none">
+
+    <!-- ======= HEADER ======= -->
+    <header class="container py-3 text-center">
+      <h2 id="view-title" class="fw-bold">Balance Overview</h2>
+    </header>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <main class="flex-grow-1 container py-3">
+      
+      <!-- Balance View -->
+      <section id="balance-view">
+        <div class="row mb-4">
+          <!-- Income Summary -->
+          <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title text-success">
+                  <i class="fas fa-money-bill-wave me-2"></i>Total Income
+                </h5>
+                <p id="total-income" class="fs-3 fw-bold text-success">$0.00</p>
+                <button class="btn btn-sm btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                  <i class="fas fa-plus me-1"></i>Add Income
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Expense Summary -->
+          <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title text-danger">
+                  <i class="fas fa-shopping-cart me-2"></i>Planned Expenses
+                </h5>
+                <p id="planned-expenses" class="fs-3 fw-bold text-danger">$0.00</p>
+                <button class="btn btn-sm btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                  <i class="fas fa-plus me-1"></i>Plan Expense
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Balance Display -->
+        <div class="balance-display text-center my-5">
+          <p class="text-muted mb-1">Available Balance</p>
+          <h1 class="display-4 fw-bold mb-4" id="main-balance">$0.00</h1>
+          <button class="btn btn-primary rounded-pill px-4 py-2" data-bs-toggle="modal" data-bs-target="#adjustmentModal">
+            <i class="fas fa-exchange-alt me-2"></i>Adjust Balance
+          </button>
+        </div>
+        
+        <!-- Planned Expenses List -->
+        <div class="card shadow-sm mt-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="fas fa-clipboard-list me-2"></i>Planned Expenses
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="planned-expenses-list">
+                  <tr>
+                    <td colspan="4" class="text-center py-4">No planned expenses yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transactions View -->
+      <section id="transactions-view" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Your Transactions</h5>
+          <div>
+            <button id="add-transaction-btn" class="btn btn-sm btn-primary me-2">
+              <i class="fas fa-plus me-1"></i> Add
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+              <i class="fas fa-filter me-1"></i> Filter
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filter Badges -->
+        <div id="filter-badges" class="mb-3 d-none">
+          <span class="badge bg-primary me-2">
+            Filter: <span id="active-filter">All</span>
+            <button class="btn-close btn-close-white ms-2" onclick="clearFilters()"></button>
+          </span>
+        </div>
+        
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="transaction-list">
+                  <tr>
+                    <td colspan="5" class="text-center py-4">No transactions yet</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics View -->
+      <section id="analytics-view" class="d-none">
+        <h5 class="mb-3">Spending Analytics</h5>
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Expense Categories</h6>
+            <div class="chart-container">
+              <canvas id="pie-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Monthly Summary</h6>
+            <div class="chart-container">
+              <canvas id="bar-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings View -->
+      <section id="settings-view" class="d-none">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Settings</h5>
+            
+            <div class="mb-4">
+              <h6 class="mb-3">Appearance</h6>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="dark-mode-switch">
+                <label class="form-check-label" for="dark-mode-switch">Dark Mode</label>
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <h6 class="mb-3">Data Management</h6>
+              <button id="export-data-btn" class="btn btn-outline-primary w-100 mb-2">
+                <i class="fas fa-file-export me-2"></i>Export Data
+              </button>
+              <button id="reset-data-btn" class="btn btn-outline-danger w-100">
+                <i class="fas fa-trash-alt me-2"></i>Reset All Data
+              </button>
+            </div>
+            
+            <div class="text-center text-muted mt-4">
+              <small>Expense Tracker Pro v1.0</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======= MODALS ======= -->
+      
+      <!-- Income Modal -->
+      <div class="modal fade" id="incomeModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add Income</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="income-form">
+                <div class="mb-3">
+                  <label for="income-amount" class="form-label">Amount</label>
+                  <input type="number" class="form-control" id="income-amount" required min="0.01" step="0.01">
+                </div>
+                <div class="mb-3">
+                  <label for="income-source" class="form-label">Source</label>
+                  <input type="text" class="form-control" id="income-source" placeholder="Salary, Freelance, etc." required>
+                </div>
+                <div class="mb-3">
+                  <label for="income-date" class="form-label">Date</label>
+                  <input type="date" class="form-control" id="income-date" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Add Income</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Expense Modal -->
+      <div class="modal fade" id="expenseModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Plan Expense</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="expense-form">
+                <div class="mb-3">
+                  <label for="expense-item" class="form-label">Item/Description</label>
+                  <input type="text" class="form-control" id="expense-item" placeholder="What are you buying?" required>
+                </div>
+                <div class="mb-3">
+                  <label for="expense-amount" class="form-label">Amount</label>
+                  <input type="number" class="form-control" id="expense-amount" required min="0.01" step="0.01">
+                </div>
+                <div class="mb-3">
+                  <label for="expense-category" class="form-label">Category</label>
+                  <select class="form-select" id="expense-category" required>
+                    <option value="" disabled selected>Select category</option>
+                    <option value="Food">Food</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="expense-date" class="form-label">Planned Date</label>
+                  <input type="date" class="form-control" id="expense-date" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="deduct-immediately">
+                  <label class="form-check-label" for="deduct-immediately">Deduct from balance immediately</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Plan Expense</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Balance Adjustment Modal -->
+      <div class="modal fade" id="adjustmentModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Adjust Balance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="adjustment-form">
+                <div class="mb-3">
+                  <label class="form-label">Adjustment Type</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="adjustment-type" id="add-funds" value="add" checked>
+                      <label class="form-check-label" for="add-funds">Add Funds</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="adjustment-type" id="deduct-funds" value="deduct">
+                      <label class="form-check-label" for="deduct-funds">Deduct Funds</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="adjustment-amount" class="form-label">Amount</label>
+                  <input type="number" class="form-control" id="adjustment-amount" required min="0.01" step="0.01">
+                </div>
+                <div class="mb-3">
+                  <label for="adjustment-reason" class="form-label">Reason (Optional)</label>
+                  <input type="text" class="form-control" id="adjustment-reason" placeholder="Why are you adjusting?">
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Apply Adjustment</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Filter Modal -->
+      <div class="modal fade" id="filterModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Filter Transactions</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Transaction Type</label>
+                <select class="form-select" id="filter-type">
+                  <option value="all">All Transactions</option>
+                  <option value="income">Income Only</option>
+                  <option value="expense">Expenses Only</option>
+                  <option value="planned">Planned Expenses</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="filter-category">
+                  <option value="all">All Categories</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Food">Food</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Utilities">Utilities</option>
+                </select>
+              </div>
+              <div class="row mb-3">
+                <div class="col">
+                  <label for="start-date" class="form-label">From Date</label>
+                  <input type="date" class="form-control" id="start-date">
+                </div>
+                <div class="col">
+                  <label for="end-date" class="form-label">To Date</label>
+                  <input type="date" class="form-control" id="end-date">
+                </div>
+              </div>
+              <div class="d-grid">
+                <button type="button" class="btn btn-primary" id="apply-filters-btn">
+                  <i class="fas fa-filter me-2"></i>Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ======= BOTTOM NAVIGATION ======= -->
+    <nav class="navbar fixed-bottom navbar-dark bg-primary">
+      <div class="container-fluid">
+        <ul class="navbar-nav w-100 flex-row justify-content-around">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" data-view="balance">
+              <i class="fas fa-home fs-5"></i>
+              <span class="d-block">Home</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-view="transactions">
+              <i class="fas fa-exchange-alt fs-5"></i>
+              <span class="d-block">Transactions</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-view="analytics">
+              <i class="fas fa-chart-pie fs-5"></i>
+              <span class="d-block">Analytics</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-view="settings">
+              <i class="fas fa-cog fs-5"></i>
+              <span class="d-block">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Bootstrap JS + Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom JS -->
+  <script>
+    // App State
+    let appState = {
+      balance: 0,
+      totalIncome: 0,
+      totalExpenses: 0,
+      plannedExpenses: [],
+      transactions: [],
+      darkMode: false,
+      currentView: 'balance'
+    };
+
+    // DOM Elements
+    const elements = {
+      welcomeScreen: document.getElementById('welcome-screen'),
+      appContainer: document.getElementById('app-container'),
+      getStartedBtn: document.getElementById('get-started-btn'),
+      viewTitle: document.getElementById('view-title'),
+      balanceView: document.getElementById('balance-view'),
+      transactionsView: document.getElementById('transactions-view'),
+      analyticsView: document.getElementById('analytics-view'),
+      settingsView: document.getElementById('settings-view'),
+      totalIncome: document.getElementById('total-income'),
+      plannedExpenses: document.getElementById('planned-expenses'),
+      mainBalance: document.getElementById('main-balance'),
+      plannedExpensesList: document.getElementById('planned-expenses-list'),
+      transactionList: document.getElementById('transaction-list'),
+      filterBadges: document.getElementById('filter-badges'),
+      activeFilter: document.getElementById('active-filter'),
+      pieChart: document.getElementById('pie-chart'),
+      barChart: document.getElementById('bar-chart'),
+      darkModeSwitch: document.getElementById('dark-mode-switch'),
+      exportDataBtn: document.getElementById('export-data-btn'),
+      resetDataBtn: document.getElementById('reset-data-btn'),
+      addTransactionBtn: document.getElementById('add-transaction-btn'),
+      incomeForm: document.getElementById('income-form'),
+      expenseForm: document.getElementById('expense-form'),
+      adjustmentForm: document.getElementById('adjustment-form'),
+      applyFiltersBtn: document.getElementById('apply-filters-btn')
+    };
+
+    // Initialize the app
+    function initApp() {
+      // Load data from localStorage
+      const savedData = localStorage.getItem('expenseTrackerData');
+      if (savedData) {
+        appState = JSON.parse(savedData);
+      }
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      // Initialize UI
+      updateUI();
+      
+      // Initialize charts
+      initCharts();
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+      // Navigation
+      elements.getStartedBtn.addEventListener('click', showApp);
+      
+      // Bottom nav
+      document.querySelectorAll('.nav-link[data-view]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          switchView(link.getAttribute('data-view'));
+        });
+      });
+      
+      // Forms
+      elements.incomeForm.addEventListener('submit', handleIncomeSubmit);
+      elements.expenseForm.addEventListener('submit', handleExpenseSubmit);
+      elements.adjustmentForm.addEventListener('submit', handleAdjustmentSubmit);
+      
+      // Settings
+      elements.darkModeSwitch.addEventListener('change', toggleDarkMode);
+      elements.exportDataBtn.addEventListener('click', exportData);
+      elements.resetDataBtn.addEventListener('click', resetData);
+      
+      // Transactions
+      elements.addTransactionBtn.addEventListener('click', () => {
+        document.getElementById('expenseModal').classList.add('show');
+        document.querySelector('#expenseModal .btn-close').click();
+      });
+      
+      // Filters
+      elements.applyFiltersBtn.addEventListener('click', applyFilters);
+    }
+
+    // Show main app
+    function showApp() {
+      elements.welcomeScreen.classList.add('d-none');
+      elements.appContainer.classList.remove('d-none');
+    }
+
+    // Switch between views
+    function switchView(view) {
+      appState.currentView = view;
+      
+      // Update active nav link
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-view') === view) {
+          link.classList.add('active');
+        }
+      });
+      
+      // Hide all views
+      elements.balanceView.classList.add('d-none');
+      elements.transactionsView.classList.add('d-none');
+      elements.analyticsView.classList.add('d-none');
+      elements.settingsView.classList.add('d-none');
+      
+      // Show current view
+      switch(view) {
+        case 'balance':
+          elements.balanceView.classList.remove('d-none');
+          elements.viewTitle.textContent = 'Balance Overview';
+          break;
+        case 'transactions':
+          elements.transactionsView.classList.remove('d-none');
+          elements.viewTitle.textContent = 'Transactions';
+          renderTransactions();
+          break;
+        case 'analytics':
+          elements.analyticsView.classList.remove('d-none');
+          elements.viewTitle.textContent = 'Analytics';
+          updateCharts();
+          break;
+        case 'settings':
+          elements.settingsView.classList.remove('d-none');
+          elements.viewTitle.textContent = 'Settings';
+          break;
+      }
+      
+      saveState();
+    }
+
+    // Handle income form submission
+    function handleIncomeSubmit(e) {
+      e.preventDefault();
+      
+      const amount = parseFloat(document.getElementById('income-amount').value);
+      const source = document.getElementById('income-source').value;
+      const date = document.getElementById('income-date').value || new Date().toISOString().split('T')[0];
+      
+      // Create transaction
+      const transaction = {
+        id: Date.now(),
+        type: 'income',
+        amount: amount,
+        source: source,
+        date: date,
+        category: source
+      };
+      
+      // Update state
+      appState.transactions.push(transaction);
+      appState.totalIncome += amount;
+      appState.balance += amount;
+      
+      // Update UI
+      updateUI();
+      
+      // Reset form
+      elements.incomeForm.reset();
+      
+      // Close modal
+      document.querySelector('#incomeModal .btn-close').click();
+    }
+
+    // Handle expense form submission
+    function handleExpenseSubmit(e) {
+      e.preventDefault();
+      
+      const item = document.getElementById('expense-item').value;
+      const amount = parseFloat(document.getElementById('expense-amount').value);
+      const category = document.getElementById('expense-category').value;
+      const date = document.getElementById('expense-date').value || new Date().toISOString().split('T')[0];
+      const deductImmediately = document.getElementById('deduct-immediately').checked;
+      
+      // Create planned expense
+      const expense = {
+        id: Date.now(),
+        item: item,
+        amount: amount,
+        category: category,
+        plannedDate: date,
+        status: deductImmediately ? 'paid' : 'planned'
+      };
+      
+      // Update state
+      appState.plannedExpenses.push(expense);
+      appState.totalExpenses += amount;
+      
+      if (deductImmediately) {
+        appState.balance -= amount;
+        
+        // Create transaction
+        const transaction = {
+          id: Date.now(),
+          type: 'expense',
+          amount: amount,
+          item: item,
+          date: new Date().toISOString().split('T')[0],
+          category: category
+        };
+        
+        appState.transactions.push(transaction);
+      }
+      
+      // Update UI
+      updateUI();
+      
+      // Reset form
+      elements.expenseForm.reset();
+      
+      // Close modal
+      document.querySelector('#expenseModal .btn-close').click();
+    }
+
+    // Handle adjustment form submission
+    function handleAdjustmentSubmit(e) {
+      e.preventDefault();
+      
+      const amount = parseFloat(document.getElementById('adjustment-amount').value);
+      const type = document.querySelector('input[name="adjustment-type"]:checked').value;
+      const reason = document.getElementById('adjustment-reason').value || "Balance adjustment";
+      
+      // Update balance
+      if (type === 'add') {
+        appState.balance += amount;
+      } else {
+        appState.balance -= amount;
+      }
+      
+      // Create transaction
+      const transaction = {
+        id: Date.now(),
+        type: 'adjustment',
+        amount: type === 'add' ? amount : -amount,
+        reason: reason,
+        date: new Date().toISOString().split('T')[0],
+        category: 'Adjustment'
+      };
+      
+      appState.transactions.push(transaction);
+      
+      // Update UI
+      updateUI();
+      
+      // Reset form
+      elements.adjustmentForm.reset();
+      
+      // Close modal
+      document.querySelector('#adjustmentModal .btn-close').click();
+    }
+
+    // Mark expense as paid
+    function markExpenseAsPaid(id) {
+      const expense = appState.plannedExpenses.find(e => e.id === id);
+      if (expense && expense.status === 'planned') {
+        expense.status = 'paid';
+        appState.balance -= expense.amount;
+        
+        // Create transaction
+        const transaction = {
+          id: Date.now(),
+          type: 'expense',
+          amount: expense.amount,
+          item: expense.item,
+          date: new Date().toISOString().split('T')[0],
+          category: expense.category
+        };
+        
+        appState.transactions.push(transaction);
+        
+        // Update UI
+        updateUI();
+      }
+    }
+
+    // Delete expense
+    function deleteExpense(id) {
+      const expenseIndex = appState.plannedExpenses.findIndex(e => e.id === id);
+      if (expenseIndex !== -1) {
+        const expense = appState.plannedExpenses[expenseIndex];
+        
+        // Only update totals if it was planned and not paid
+        if (expense.status === 'planned') {
+          appState.totalExpenses -= expense.amount;
+        }
+        
+        appState.plannedExpenses.splice(expenseIndex, 1);
+        
+        // Update UI
+        updateUI();
+      }
+    }
+
+    // Toggle dark mode
+    function toggleDarkMode() {
+      appState.darkMode = elements.darkModeSwitch.checked;
+      if (appState.darkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+      saveState();
+    }
+
+    // Export data
+    function exportData() {
+      const dataStr = JSON.stringify(appState);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = 'expense-tracker-data.json';
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    }
+
+    // Reset data
+    function resetData() {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        appState = {
+          balance: 0,
+          totalIncome: 0,
+          totalExpenses: 0,
+          plannedExpenses: [],
+          transactions: [],
+          darkMode: appState.darkMode,
+          currentView: appState.currentView
+        };
+        localStorage.removeItem('expenseTrackerData');
+        updateUI();
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const type = document.getElementById('filter-type').value;
+      const category = document.getElementById('filter-category').value;
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      
+      // Show filter badges
+      elements.filterBadges.classList.remove('d-none');
+      elements.activeFilter.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)}${category !== 'all' ? `, ${category}` : ''}`;
+      
+      // Render transactions with filters
+      renderTransactions(type, category, startDate, endDate);
+      
+      // Close modal
+      document.querySelector('#filterModal .btn-close').click();
+    }
+
+    // Clear filters
+    function clearFilters() {
+      elements.filterBadges.classList.add('d-none');
+      renderTransactions();
+    }
+
+    // Render planned expenses
+    function renderPlannedExpenses() {
+      const list = elements.plannedExpensesList;
+      list.innerHTML = '';
+      
+      if (appState.plannedExpenses.length === 0) {
+        list.innerHTML = `<tr><td colspan="4" class="text-center py-4">No planned expenses yet</td></tr>`;
+        return;
+      }
+      
+      appState.plannedExpenses.forEach(expense => {
+        const row = document.createElement('tr');
+        
+        // Status badge
+        let badgeClass, badgeText;
+        if (expense.status === 'paid') {
+          badgeClass = 'badge-paid';
+          badgeText = 'Paid';
+        } else {
+          badgeClass = 'badge-planned';
+          badgeText = 'Planned';
+        }
+        
+        row.innerHTML = `
+          <td>${expense.item}</td>
+          <td class="text-danger">$${expense.amount.toFixed(2)}</td>
+          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td>
+            ${expense.status === 'planned' ? `
+              <button class="btn btn-sm btn-success me-1" onclick="markExpenseAsPaid(${expense.id})">
+                <i class="fas fa-check"></i>
+              </button>
+            ` : ''}
+            <button class="btn btn-sm btn-danger" onclick="deleteExpense(${expense.id})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        `;
+        
+        list.appendChild(row);
+      });
+    }
+
+    // Render transactions
+    function renderTransactions(type = 'all', category = 'all', startDate = null, endDate = null) {
+      const list = elements.transactionList;
+      list.innerHTML = '';
+      
+      // Filter transactions
+      let transactions = [...appState.transactions];
+      
+      if (type !== 'all') {
+        transactions = transactions.filter(t => t.type === type);
+      }
+      
+      if (category !== 'all') {
+        transactions = transactions.filter(t => t.category === category);
+      }
+      
+      if (startDate) {
+        transactions = transactions.filter(t => t.date >= startDate);
+      }
+      
+      if (endDate) {
+        transactions = transactions.filter(t => t.date <= endDate);
+      }
+      
+      if (transactions.length === 0) {
+        list.innerHTML = `<tr><td colspan="5" class="text-center py-4">No transactions found</td></tr>`;
+        return;
+      }
+      
+      // Sort by date (newest first)
+      transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // Render transactions
+      transactions.forEach(transaction => {
+        const row = document.createElement('tr');
+        const isIncome = transaction.type === 'income';
+        const isExpense = transaction.type === 'expense';
+        const isAdjustment = transaction.type === 'adjustment';
+        
+        row.innerHTML = `
+          <td>
+            ${isIncome ? '<span class="badge bg-success">Income</span>' : ''}
+            ${isExpense ? '<span class="badge bg-danger">Expense</span>' : ''}
+            ${isAdjustment ? '<span class="badge bg-warning text-dark">Adjustment</span>' : ''}
+          </td>
+          <td class="${isIncome ? 'text-success' : isExpense ? 'text-danger' : isAdjustment && transaction.amount > 0 ? 'text-success' : 'text-danger'}">
+            ${isIncome || (isAdjustment && transaction.amount > 0) ? '+' : ''}${isExpense || (isAdjustment && transaction.amount < 0) ? '-' : ''}$${Math.abs(transaction.amount).toFixed(2)}
+          </td>
+          <td>${transaction.category}</td>
+          <td>${transaction.date}</td>
+          <td><span class="badge bg-success">Completed</span></td>
+        `;
+        
+        list.appendChild(row);
+      });
+    }
+
+    // Initialize charts
+    function initCharts() {
+      // Pie chart for expense categories
+      elements.pieChart = new Chart(
+        document.getElementById('pie-chart'),
+        {
+          type: 'pie',
+          data: {
+            labels: [],
+            datasets: [{
+              data: [],
+              backgroundColor: [
+                '#ef476f',
+                '#ffd166',
+                '#06d6a0',
+                '#118ab2',
+                '#073b4c',
+                '#7209b7'
+              ]
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              title: {
+                display: false
+              }
+            }
+          }
+        }
+      );
+      
+      // Bar chart for monthly summary
+      elements.barChart = new Chart(
+        document.getElementById('bar-chart'),
+        {
+          type: 'bar',
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: 'Income',
+                data: [],
+                backgroundColor: '#06d6a0'
+              },
+              {
+                label: 'Expenses',
+                data: [],
+                backgroundColor: '#ef476f'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        }
+      );
+    }
+
+    // Update charts
+    function updateCharts() {
+      // Expense categories
+      const categories = {};
+      appState.transactions
+        .filter(t => t.type === 'expense')
+        .forEach(t => {
+          categories[t.category] = (categories[t.category] || 0) + t.amount;
+        });
+      
+      elements.pieChart.data.labels = Object.keys(categories);
+      elements.pieChart.data.datasets[0].data = Object.values(categories);
+      elements.pieChart.update();
+      
+      // Monthly summary
+      const months = {};
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      appState.transactions.forEach(t => {
+        const month = new Date(t.date).getMonth();
+        const year = new Date(t.date).getFullYear();
+        const key = `${year}-${month}`;
+        
+        if (!months[key]) {
+          months[key] = { income: 0, expense: 0 };
+        }
+        
+        if (t.type === 'income' || (t.type === 'adjustment' && t.amount > 0)) {
+          months[key].income += Math.abs(t.amount);
+        } else if (t.type === 'expense' || (t.type === 'adjustment' && t.amount < 0)) {
+          months[key].expense += Math.abs(t.amount);
+        }
+      });
+      
+      // Get last 6 months
+      const now = new Date();
+      const labels = [];
+      const incomeData = [];
+      const expenseData = [];
+      
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date();
+        date.setMonth(now.getMonth() - i);
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        
+        labels.push(`${monthNames[date.getMonth()]} ${date.getFullYear()}`);
+        
+        if (months[key]) {
+          incomeData.push(months[key].income);
+          expenseData.push(months[key].expense);
+        } else {
+          incomeData.push(0);
+          expenseData.push(0);
+        }
+      }
+      
+      elements.barChart.data.labels = labels;
+      elements.barChart.data.datasets[0].data = incomeData;
+      elements.barChart.data.datasets[1].data = expenseData;
+      elements.barChart.update();
+    }
+
+    // Update UI
+    function updateUI() {
+      // Update summary values
+      elements.totalIncome.textContent = `$${appState.totalIncome.toFixed(2)}`;
+      elements.plannedExpenses.textContent = `$${appState.totalExpenses.toFixed(2)}`;
+      elements.mainBalance.textContent = `$${appState.balance.toFixed(2)}`;
+      
+      // Render lists
+      renderPlannedExpenses();
+      renderTransactions();
+      
+      // Update settings
+      elements.darkModeSwitch.checked = appState.darkMode;
+      if (appState.darkMode) {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+      
+      // Update charts if in analytics view
+      if (appState.currentView === 'analytics') {
+        updateCharts();
+      }
+      
+      saveState();
+    }
+
+    // Save state to localStorage
+    function saveState() {
+      localStorage.setItem('expenseTrackerData', JSON.stringify(appState));
+    }
+
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set today's date as default in forms
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('income-date').value = today;
+      document.getElementById('expense-date').value = today;
+      
+      // Initialize the app
+      initApp();
+    });
+    
+    // Make functions available globally for HTML event handlers
+    window.markExpenseAsPaid = markExpenseAsPaid;
+    window.deleteExpense = deleteExpense;
+    window.clearFilters = clearFilters;
+  </script>
+</body>
+</html>
