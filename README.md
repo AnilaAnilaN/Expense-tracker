@@ -17,4 +17,4 @@
 - Offline support (data stored in browser)
 - Fully responsive and mobile-friendly
 
-# Check here: https://lnkd.in/drrDhwqE
+# Check here: https://anilaanilan.github.io/Expense-tracker/
